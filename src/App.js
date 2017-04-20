@@ -24,7 +24,7 @@ class App extends Component {
             ],
             playerTurn: 0,
             cells: new Array(9).fill(null),
-            winner: null
+            gameOver: false
         }
         this.initialState = this.state;
     }
@@ -36,7 +36,6 @@ class App extends Component {
         let occupied = this.state.cells[cellIndex] === null ? false : true;
 
         if (!occupied) {
-            // console.log('Up for grabs');
             nextCellsState[cellIndex] = this.state.playerTurn;
 
             this.setState({
@@ -44,12 +43,13 @@ class App extends Component {
             });
 
             this.nextTurn();
-            console.log()
         }
     }
 
     nextTurn() {
-        this.checkWinner();
+        if (!this.checkWinner()) {
+            return;
+        }
 
         if (this.state.cells.indexOf(null) === -1) {
             return;
@@ -61,10 +61,10 @@ class App extends Component {
         this.setState({
             playerTurn: turn
         });
-        // console.log('Next turn!', this.state.playerTurn);
     }
 
     checkWinner() {
+        let gameOver = false;
         let patterns = [
 
             // Horizontal match
@@ -83,14 +83,41 @@ class App extends Component {
         ];
 
         // iterate through each pattern
-        for (var pattern in patterns) {
+        for (var i = 0; i < patterns.length; i++) {
+            let matches = patterns[i].reduce((acc, val) => {
 
+                // Compare to our cells state
+                let index = patterns[i][0];
+                if (this.state.cells[val] === null) {
+                    return acc;
+                }
+                this.state.cells[val] === this.state.cells[index] ? acc++ : acc;
+                return acc;
+            }, 0);
+
+            if (matches == 3) {
+                gameOver = true;
+            }
         }
 
+        if (gameOver) {
+            this.setState({
+                gameOver: true,
+                // players[this.state.playerTurn]: players[this.state.playerTurn].wins++
+            });
+
+            return false;
+        }
+
+        return true;
     }
 
     resetGame() {
-        this.setState(this.initialState);
+        this.setState({
+            playerTurn: 0,
+            cells: new Array(9).fill(null),
+            gameOver: false
+        });
     }
 
     render() {
@@ -115,8 +142,8 @@ class App extends Component {
                             <Cell cellIndex={8} claimCell={this.claimCell} occupant={this.state.cells[8]} />
                         </div>
                     </div>
-                    <Scoreboard players={this.state.players} playerTurn={this.state.playerTurn} winner={this.state.winner} />
-                    {this.state.winner !== null ?
+                    <Scoreboard players={this.state.players} playerTurn={this.state.playerTurn} gameOver={this.state.gameOver} />
+                    {this.state.gameOver ?
                         <div className='button' onClick={this.resetGame} >Play Again</div>
                             : null}
                 </div>
@@ -153,7 +180,6 @@ class Scoreboard extends Component {
         let players = this.props.players.map((player, index) => {
             let playerClass = 'player';
             playerClass += index === this.props.playerTurn ? ' active' : '';
-            playerClass += index === this.props.winner ? ' winner' : '';
             return (
                 <div className={playerClass} key={player.name}>
                     <p>{player.name} - {player.symbol}</p>
