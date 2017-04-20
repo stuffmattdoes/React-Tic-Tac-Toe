@@ -24,12 +24,17 @@ class App extends Component {
             ],
             playerTurn: 0,
             cells: new Array(9).fill(null),
-            gameOver: false
+            gameOver: false,
+            ties: 0
         }
         this.initialState = this.state;
     }
 
     claimCell(cellIndex) {
+        if (this.state.gameOver) {
+            return;
+        }
+
         let nextCellsState = this.state.cells;
 
         // Check if the current cell is occupied or not
@@ -47,13 +52,9 @@ class App extends Component {
     }
 
     nextTurn() {
-        if (!this.checkWinner()) {
-            return;
-        }
-
-        if (this.state.cells.indexOf(null) === -1) {
-            return;
-        }
+        if (!this.checkGameOver() || !this.checkWinner()) {
+            return
+        };
 
         let turn = this.state.playerTurn;
         this.state.playerTurn < this.state.players.length - 1 ? turn++ : turn = 0;
@@ -61,6 +62,15 @@ class App extends Component {
         this.setState({
             playerTurn: turn
         });
+    }
+
+    checkGameOver() {
+        if (this.state.cells.indexOf(null) === -1) {
+            this.checkWinner();
+            return false;
+        }
+
+        return true;
     }
 
     checkWinner() {
@@ -101,9 +111,11 @@ class App extends Component {
         }
 
         if (gameOver) {
+            let playerScore = this.state.players[this.state.playerTurn].score;
+
             this.setState({
                 gameOver: true,
-                // players[this.state.playerTurn]: players[this.state.playerTurn].wins++
+                playerScore: this.state.players[this.state.playerTurn].score++
             });
 
             return false;
@@ -143,6 +155,7 @@ class App extends Component {
                         </div>
                     </div>
                     <Scoreboard players={this.state.players} playerTurn={this.state.playerTurn} gameOver={this.state.gameOver} />
+                    <p>Ties: {this.state.ties}</p>
                     {this.state.gameOver ?
                         <div className='button' onClick={this.resetGame} >Play Again</div>
                             : null}

@@ -43,6 +43,10 @@
   color: white;
 }
 
+p {
+  color: white;
+}
+
 .player {
   display: inline-block;
   padding: 6px 20px;
