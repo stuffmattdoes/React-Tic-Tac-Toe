@@ -75,6 +75,7 @@ class App extends Component {
 
     checkWinner() {
         let gameOver = false;
+        let winner = false;
         let patterns = [
 
             // Horizontal match
@@ -105,17 +106,30 @@ class App extends Component {
                 return acc;
             }, 0);
 
-            if (matches == 3) {
+            if (matches === 3) {
                 gameOver = true;
+                winner = true;
             }
         }
+        
+        if (gameOver || winner) {
+            console.log(gameOver, winner);
+            let currentPlayerScore = this.state.players[this.state.playerTurn].score;
+            let ties = this.state.ties;
+            let score = this.state.players[this.state.playerTurn].score;
 
-        if (gameOver) {
-            let playerScore = this.state.players[this.state.playerTurn].score;
+            if (!winner) {
+                console.log('tie');
+                ties++;
+            } else {
+                console.log('score');
+                score++;
+            }
 
             this.setState({
                 gameOver: true,
-                playerScore: this.state.players[this.state.playerTurn].score++
+                currentPlayerScore: this.state.players[this.state.playerTurn].score++,
+                ties: ties
             });
 
             return false;
