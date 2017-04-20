@@ -112,16 +112,13 @@ class App extends Component {
         }
 
         if (gameOver || winner) {
-            console.log(gameOver, winner);
             let currentPlayerScore = this.state.players[this.state.playerTurn].score;
             let ties = this.state.ties;
             let score = this.state.players[this.state.playerTurn].score;
 
             if (!winner) {
-                console.log('tie');
                 ties++;
             } else {
-                console.log('score');
                 score++;
             }
 
