@@ -17,13 +17,22 @@
   border-bottom: none;
 }
 
+.row {
+  display: flex;
+  justify-content: center;
+}
+
 .cell {
+  box-sizing: border-box;
   display: inline-block;
-  padding: 40px;
-  text-align: center;
+  width: 80px;
+  height: 80px;
   color: white;
   border-right: 1px solid #4E4E4E;
   border-bottom: 1px solid #4E4E4E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cell:last-child {
@@ -34,9 +43,23 @@
   color: white;
 }
 
+.player {
+  display: inline-block;
+  padding: 6px 20px;
+}
+
+.player p {
+  margin: 0;
+  line-height: 1.8;
+}
+
 .player.active {
   font-weight: bold;
-  text-decoration: underline;
+  border: 1px solid white;
+}
+
+.player.winner {
+  border: 2px solid green;
 }
 
 .button {
