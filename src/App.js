@@ -66,7 +66,6 @@ class App extends Component {
 
     checkGameOver() {
         if (this.state.cells.indexOf(null) === -1) {
-            this.checkWinner();
             return false;
         }
 
@@ -111,7 +110,7 @@ class App extends Component {
                 winner = true;
             }
         }
-        
+
         if (gameOver || winner) {
             console.log(gameOver, winner);
             let currentPlayerScore = this.state.players[this.state.playerTurn].score;
