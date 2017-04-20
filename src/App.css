@@ -1,0 +1,52 @@
+.App {
+  background-color: #202020;
+  width: 100vw;
+  height: 100vh;
+  padding: 150px 0 0;
+}
+
+.container {
+  text-align: center;
+}
+
+.board {
+  margin-bottom: 50px;
+}
+
+.row:last-child .cell {
+  border-bottom: none;
+}
+
+.cell {
+  display: inline-block;
+  padding: 40px;
+  text-align: center;
+  color: white;
+  border-right: 1px solid #4E4E4E;
+  border-bottom: 1px solid #4E4E4E;
+}
+
+.cell:last-child {
+  border-right: none;
+}
+
+.scoreboard {
+  color: white;
+}
+
+.player.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.button {
+  display: inline-block;
+  background-color: green;
+  color: white;
+  margin-top: 15px;
+  padding: 10px 25px;
+}
+
+.button:hover {
+  cursor: pointer;
+}
