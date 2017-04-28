@@ -7,6 +7,7 @@ class App extends Component {
         this.nextTurn = this.nextTurn.bind(this);
         this.claimCell = this.claimCell.bind(this);
         this.resetGame = this.resetGame.bind(this);
+        this.clickHandler = this.clickHandler.bind(this);
         this.state = {
             players: [
                 {
@@ -24,58 +25,60 @@ class App extends Component {
             ],
             playerTurn: 0,
             cells: new Array(9).fill(null),
-            gameOver: false,
+            // gameOver: false,
             ties: 0
         }
         this.initialState = this.state;
     }
 
-    claimCell(cellIndex) {
-        if (this.state.gameOver) {
+    clickHandler(cellIndex) {
+        let nextState = this.state;
+
+        if (this.isBoardFull(nextState)) {
             return;
         }
 
-        let nextCellsState = this.state.cells;
-
-        // Check if the current cell is occupied or not
-        let occupied = this.state.cells[cellIndex] === null ? false : true;
-
-        if (!occupied) {
-            nextCellsState[cellIndex] = this.state.playerTurn;
-
-            this.setState({
-                cells: nextCellsState
-            });
-
-            this.nextTurn();
-        }
-    }
-
-    nextTurn() {
-        if (!this.checkGameOver() || !this.checkWinner()) {
-            return
-        };
-
-        let turn = this.state.playerTurn;
-        this.state.playerTurn < this.state.players.length - 1 ? turn++ : turn = 0;
-
-        this.setState({
-            playerTurn: turn
-        });
-    }
-
-    checkGameOver() {
-        if (this.state.cells.indexOf(null) === -1) {
-            return false;
+        if (!this.isCellEmpty(nextState, cellIndex)) {
+            return;
+        } else {
+            nextState = this.claimCell(nextState, cellIndex);
         }
 
-        return true;
+        if (!this.isBoardFull(nextState) && !this.hasPlayerWon(nextState)) {
+            this.nextTurn(nextState);
+        }
+
+        this.setState(nextState);
     }
 
-    checkWinner() {
-        let gameOver = false;
-        let winner = false;
-        let patterns = [
+    isCellEmpty(state, cellIndex) {
+        if (state.cells[cellIndex] === null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    isBoardFull (state) {
+        if (state.cells.indexOf(null) === -1) {
+            return true;
+        }
+        return false;
+    }
+
+
+    claimCell(state, cellIndex) {
+        state.cells[cellIndex] = state.playerTurn; // Original state is still mutated, so copy
+        return state;
+    }
+
+    nextTurn(state) {
+        state.playerTurn = state.playerTurn < state.players.length - 1 ? state.playerTurn += 1 : 0;
+        return state;
+    }
+
+    hasPlayerWon(cellVavlues) {
+        let winPatterns = [
 
             // Horizontal match
             [0, 1, 2],
@@ -93,28 +96,36 @@ class App extends Component {
         ];
 
         // iterate through each pattern
-        for (var i = 0; i < patterns.length; i++) {
-            let matches = patterns[i].reduce((acc, val) => {
+        for (var i = 0; i < winPatterns.length; i++) {
+            let matches = winPatterns[i].reduce((acc, val) => {
 
                 // Compare to our cells state
-                let index = patterns[i][0];
-                if (this.state.cells[val] === null) {
+                let index = winPatterns[i][0];
+                if (cellVavlues[val] === null) {
                     return acc;
                 }
-                this.state.cells[val] === this.state.cells[index] ? acc++ : acc;
+                cellVavlues[val] === cellVavlues[index] ? acc++ : acc;
                 return acc;
             }, 0);
 
             if (matches === 3) {
-                gameOver = true;
-                winner = true;
+                // console.log('Winner!');
+                return true;
             }
+            // console.log('Loop');
         }
+        // console.log('No winner :/');
+        return false;
+    }
+
+    addScore(state) {
+        let gameOver = false;
+        let winner = false;
 
         if (gameOver || winner) {
-            let currentPlayerScore = this.state.players[this.state.playerTurn].score;
-            let ties = this.state.ties;
-            let score = this.state.players[this.state.playerTurn].score;
+            let currentPlayerScore = state.players[state.playerTurn].score;
+            let ties = state.ties;
+            let score = state.players[state.playerTurn].score;
 
             if (!winner) {
                 ties++;
@@ -124,14 +135,10 @@ class App extends Component {
 
             this.setState({
                 gameOver: true,
-                currentPlayerScore: this.state.players[this.state.playerTurn].score++,
+                currentPlayerScore: state.players[state.playerTurn].score += 1,
                 ties: ties
             });
-
-            return false;
         }
-
-        return true;
     }
 
     resetGame() {
@@ -149,19 +156,19 @@ class App extends Component {
                 <div className='container'>
                     <div className='board'>
                         <div className='row'>
-                            <Cell cellIndex={0} claimCell={this.claimCell} occupant={this.state.cells[0]} />
-                            <Cell cellIndex={1} claimCell={this.claimCell} occupant={this.state.cells[1]} />
-                            <Cell cellIndex={2} claimCell={this.claimCell} occupant={this.state.cells[2]} />
+                            <Cell cellIndex={0} onClick={this.clickHandler} occupant={this.state.cells[0]} />
+                            <Cell cellIndex={1} onClick={this.clickHandler} occupant={this.state.cells[1]} />
+                            <Cell cellIndex={2} onClick={this.clickHandler} occupant={this.state.cells[2]} />
                         </div>
                         <div className='row'>
-                            <Cell cellIndex={3} claimCell={this.claimCell} occupant={this.state.cells[3]} />
-                            <Cell cellIndex={4} claimCell={this.claimCell} occupant={this.state.cells[4]} />
-                            <Cell cellIndex={5} claimCell={this.claimCell} occupant={this.state.cells[5]} />
+                            <Cell cellIndex={3} onClick={this.clickHandler} occupant={this.state.cells[3]} />
+                            <Cell cellIndex={4} onClick={this.clickHandler} occupant={this.state.cells[4]} />
+                            <Cell cellIndex={5} onClick={this.clickHandler} occupant={this.state.cells[5]} />
                         </div>
                         <div className='row'>
-                            <Cell cellIndex={6} claimCell={this.claimCell} occupant={this.state.cells[6]} />
-                            <Cell cellIndex={7} claimCell={this.claimCell} occupant={this.state.cells[7]} />
-                            <Cell cellIndex={8} claimCell={this.claimCell} occupant={this.state.cells[8]} />
+                            <Cell cellIndex={6} onClick={this.clickHandler} occupant={this.state.cells[6]} />
+                            <Cell cellIndex={7} onClick={this.clickHandler} occupant={this.state.cells[7]} />
+                            <Cell cellIndex={8} onClick={this.clickHandler} occupant={this.state.cells[8]} />
                         </div>
                     </div>
                     <Scoreboard players={this.state.players} playerTurn={this.state.playerTurn} gameOver={this.state.gameOver} />
@@ -176,7 +183,7 @@ class App extends Component {
 
 }
 
-class Cell extends Component {
+export class Cell extends Component {
 
     render() {
         let symbol = '';
@@ -188,12 +195,12 @@ class Cell extends Component {
         }
 
         return (
-            <div className='cell' onClick={() => {this.props.claimCell(this.props.cellIndex)}}>{symbol}</div>
+            <div className='cell' onClick={() => {this.props.onClick(this.props.cellIndex)}}>{symbol}</div>
         );
     }
 }
 
-class Scoreboard extends Component {
+export class Scoreboard extends Component {
     render() {
 
         if (!this.props.players.length) {
