@@ -35,23 +35,23 @@ describe('App', () => {
 
     it('Checks if cell is vacant', () => {
         // Vacant
-        var isCellEmpty = new App().isCellEmpty(state, 0);
+        var isCellEmpty = new App().isCellEmpty(state.cells, 0);
         expect(isCellEmpty).toBe(true);
 
         // Occupied
         new App().claimCell(state, 1);
-        isCellEmpty = new App().isCellEmpty(state, 1);
+        isCellEmpty = new App().isCellEmpty(state.cells, 1);
         expect(isCellEmpty).toBe(false);
     });
 
     it('Checks if the board is full', () => {
         // Empty
-        var isBoardFull = new App().isBoardFull(state);
+        var isBoardFull = new App().isBoardFull(state.cells);
         expect(isBoardFull).toBe(false);
 
         // Full
         state.cells = new Array(9).fill(0);
-        isBoardFull = new App().isBoardFull(state);
+        isBoardFull = new App().isBoardFull(state.cells);
         expect(isBoardFull).toBe(true);
     });
 
@@ -60,22 +60,18 @@ describe('App', () => {
             null, null, null,
             null, null, null];
 
-        var cellsValues2 = [0, 1, 0,
-            null, null, null,
-            null, null, null];
-
         // Won
         var hasPlayerWon = new App().hasPlayerWon(cellsValues);
         expect(hasPlayerWon).toBe(true);
 
         // Has not won
-        hasPlayerWon = new App().hasPlayerWon(cellsValues2);
+        hasPlayerWon = new App().hasPlayerWon(state.cells);
         expect(hasPlayerWon).toBe(false);
     });
 
-    it('Should be able to reset game once game is finished', () => {
-        expect(true).toBe(false);
-    });
+    // it('Should be able to reset game once game is finished', () => {
+    //     expect(true).toBe(false);
+    // });
 
     /*
         My tests:

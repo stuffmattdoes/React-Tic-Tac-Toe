@@ -25,7 +25,6 @@ class App extends Component {
             ],
             playerTurn: 0,
             cells: new Array(9).fill(null),
-            // gameOver: false,
             ties: 0
         }
         this.initialState = this.state;
@@ -38,29 +37,29 @@ class App extends Component {
             return;
         }
 
-        if (!this.isCellEmpty(nextState, cellIndex)) {
+        if (!this.isCellEmpty(nextState.cells, cellIndex)) {
             return;
         } else {
             nextState = this.claimCell(nextState, cellIndex);
         }
 
-        if (!this.isBoardFull(nextState) && !this.hasPlayerWon(nextState)) {
+        if (!this.isBoardFull(nextState.cells) && !this.hasPlayerWon(nextState.cells)) {
             this.nextTurn(nextState);
         }
 
         this.setState(nextState);
     }
 
-    isCellEmpty(state, cellIndex) {
-        if (state.cells[cellIndex] === null) {
+    isCellEmpty(cells, cellIndex) {
+        if (cells[cellIndex] === null) {
             return true;
         }
 
         return false;
     }
 
-    isBoardFull (state) {
-        if (state.cells.indexOf(null) === -1) {
+    isBoardFull (cells) {
+        if (cells.indexOf(null) === -1) {
             return true;
         }
         return false;
@@ -134,7 +133,6 @@ class App extends Component {
             }
 
             this.setState({
-                gameOver: true,
                 currentPlayerScore: state.players[state.playerTurn].score += 1,
                 ties: ties
             });
@@ -144,8 +142,7 @@ class App extends Component {
     resetGame() {
         this.setState({
             playerTurn: 0,
-            cells: new Array(9).fill(null),
-            gameOver: false
+            cells: new Array(9).fill(null)
         });
     }
 
