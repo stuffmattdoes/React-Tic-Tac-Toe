@@ -61,12 +61,27 @@ describe('App', () => {
             null, null, null];
 
         // Won
-        var hasPlayerWon = new App().hasPlayerWon(cellsValues);
-        expect(hasPlayerWon).toBe(true);
+        var hasPlayerWon = new App().getWinner(cellsValues);
+        expect(hasPlayerWon).toBe(0);
 
         // Has not won
-        hasPlayerWon = new App().hasPlayerWon(state.cells);
-        expect(hasPlayerWon).toBe(false);
+        hasPlayerWon = new App().getWinner(state.cells);
+        expect(hasPlayerWon).toBe(null);
+    });
+
+    it('Should claim a cell at the given index', () => {
+        var claimCell = new App().claimCell;
+        claimCell(state, 0);
+        expect(state.cells[0]).toBe(0);
+        expect(state.cells[1]).toBe(null);
+    });
+
+    it('Should proceed game to next turn after successfully claiming a cell', () => {
+        var nextTurn = new App().nextTurn;
+        nextTurn(state);
+        expect(state.playerTurn).toBe(1);
+        nextTurn(state);
+        expect(state.playerTurn).toBe(0);
     });
 
     // it('Should be able to reset game once game is finished', () => {

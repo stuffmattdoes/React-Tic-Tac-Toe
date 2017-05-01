@@ -4,8 +4,8 @@ import './App.css';
 class App extends Component {
     constructor() {
         super();
-        this.nextTurn = this.nextTurn.bind(this);
-        this.claimCell = this.claimCell.bind(this);
+        // this.nextTurn = this.nextTurn.bind(this);
+        // this.claimCell = this.claimCell.bind(this);
         this.resetGame = this.resetGame.bind(this);
         this.clickHandler = this.clickHandler.bind(this);
         this.state = {
@@ -24,6 +24,7 @@ class App extends Component {
                 },
             ],
             playerTurn: 0,
+            gameOver: false,
             cells: new Array(9).fill(null),
             ties: 0
         }
@@ -32,21 +33,26 @@ class App extends Component {
 
     clickHandler(cellIndex) {
         let nextState = this.state;
+        let winner;
 
-        if (this.isBoardFull(nextState)) {
+        if (this.state.gameOver) {
             return;
         }
 
-        if (!this.isCellEmpty(nextState.cells, cellIndex)) {
-            return;
-        } else {
+        if (this.isCellEmpty(nextState.cells, cellIndex)) {
             nextState = this.claimCell(nextState, cellIndex);
+            nextState = this.nextTurn(nextState);
         }
 
-        if (!this.isBoardFull(nextState.cells) && !this.hasPlayerWon(nextState.cells)) {
-            this.nextTurn(nextState);
-        }
+        winner = this.getWinner(nextState.cells);
 
+        if (winner != null) {
+            nextState.gameOver = true;
+            nextState = this.addScore(nextState, winner);
+        } else if (this.isBoardFull(nextState.cells)) {
+            nextState.ties = nextState.ties + 1;
+            nextState.gameOver = true;
+        }
         this.setState(nextState);
     }
 
@@ -67,16 +73,18 @@ class App extends Component {
 
 
     claimCell(state, cellIndex) {
-        state.cells[cellIndex] = state.playerTurn; // Original state is still mutated, so copy
-        return state;
+        let nextState = state;
+        nextState.cells[cellIndex] = nextState.playerTurn; // Original state is still mutated, so copy
+        return nextState;
     }
 
     nextTurn(state) {
-        state.playerTurn = state.playerTurn < state.players.length - 1 ? state.playerTurn += 1 : 0;
-        return state;
+        let nextState = state;
+        nextState.playerTurn = nextState.playerTurn < nextState.players.length - 1 ? nextState.playerTurn += 1 : 0;
+        return nextState;
     }
 
-    hasPlayerWon(cellVavlues) {
+    getWinner(cellValues) {
         let winPatterns = [
 
             // Horizontal match
@@ -96,52 +104,25 @@ class App extends Component {
 
         // iterate through each pattern
         for (var i = 0; i < winPatterns.length; i++) {
-            let matches = winPatterns[i].reduce((acc, val) => {
-
-                // Compare to our cells state
-                let index = winPatterns[i][0];
-                if (cellVavlues[val] === null) {
-                    return acc;
-                }
-                cellVavlues[val] === cellVavlues[index] ? acc++ : acc;
-                return acc;
-            }, 0);
-
-            if (matches === 3) {
-                // console.log('Winner!');
-                return true;
+            if (cellValues[winPatterns[i][0]] != null
+                && cellValues[winPatterns[i][0]] === cellValues[winPatterns[i][1]]
+                && cellValues[winPatterns[i][0]] === cellValues[winPatterns[i][2]]) {
+                return cellValues[winPatterns[i][0]];
             }
-            // console.log('Loop');
         }
-        // console.log('No winner :/');
-        return false;
+        return null;
     }
 
-    addScore(state) {
-        let gameOver = false;
-        let winner = false;
-
-        if (gameOver || winner) {
-            let currentPlayerScore = state.players[state.playerTurn].score;
-            let ties = state.ties;
-            let score = state.players[state.playerTurn].score;
-
-            if (!winner) {
-                ties++;
-            } else {
-                score++;
-            }
-
-            this.setState({
-                currentPlayerScore: state.players[state.playerTurn].score += 1,
-                ties: ties
-            });
-        }
+    addScore(state, winner) {
+        let nextState = state;
+        nextState.players[winner].score++;
+        return nextState;
     }
 
     resetGame() {
         this.setState({
             playerTurn: 0,
+            gameOver: false,
             cells: new Array(9).fill(null)
         });
     }
@@ -168,7 +149,7 @@ class App extends Component {
                             <Cell cellIndex={8} onClick={this.clickHandler} occupant={this.state.cells[8]} />
                         </div>
                     </div>
-                    <Scoreboard players={this.state.players} playerTurn={this.state.playerTurn} gameOver={this.state.gameOver} />
+                    <Scoreboard players={this.state.players} playerTurn={this.state.playerTurn} />
                     <p>Ties: {this.state.ties}</p>
                     {this.state.gameOver ?
                         <div className='button' onClick={this.resetGame} >Play Again</div>
